@@ -7,6 +7,7 @@
 //
 
 #import "FISViewController.h"
+#import <Forecastr.h>
 
 @interface FISViewController ()
 
@@ -17,8 +18,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-	// Do any additional setup after loading the view, typically from a nib.
+    Forecastr *forecast = [Forecastr sharedManager];
+    forecast.apiKey =@"de266d0039ccde283a97ec1372a31175";
+    
+    [forecast getForecastForLatitude:39.7910 longitude:86.1480 time:nil exclusions:nil extend:nil success: ^(id JSON) {
+        NSLog(@"JSON Response was %@", JSON);
+        NSDictionary *currently = [JSON objectForKey:@"currently"];
+        NSLog(@"Currently precip is %@", [currently objectForKey:@"precipProbability"]);
+        if ([[currently objectForKey:@"precipProbability"] floatValue]  == 1) {
+            self.weatherStatus.text = @"Yep";
+        } else {
+            self.weatherStatus.text = @"Nope";
+        }
+    } failure:^(NSError *error, id response) {
+        NSLog(@"Failure");
+    }];
+    
 }
 
 - (void)didReceiveMemoryWarning
